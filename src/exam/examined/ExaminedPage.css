@@ -1,0 +1,10 @@
+
+.examined-page-content{
+    width: 80vw;;
+}
+
+.add-examined-button{
+    position: fixed !important;
+    top: 104px;
+    right: .7em;
+}

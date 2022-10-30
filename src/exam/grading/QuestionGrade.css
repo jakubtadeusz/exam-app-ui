@@ -1,0 +1,45 @@
+
+.question-grade-question{
+    font-weight: bold;
+}
+
+.question-grades{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px 10px;
+    gap: 10px;
+    border-radius: 4px; 
+}
+
+.question-grade{
+    display: flex;
+    flex-direction: column;
+    width: 78vw;
+    align-items: flex-start;
+    padding: 10px;
+    gap: 10px;
+    border-radius: 4px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.grade-points{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 0px;
+    gap: 10px;
+}
+
+.MuiDivider-root{
+    width: 100%;
+}
+
+.question-grade-answers{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px 10px;
+    gap: 8px;
+}

@@ -1,0 +1,22 @@
+.question-edit-container{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px 10px;
+    gap: 10px;
+    height: 87vh;
+    margin-bottom: 40em;
+    overflow: auto;
+    overflow-x: hidden;
+}
+
+.exam-page-additional-controls{
+    position: fixed;
+    top: 220px;
+    left: 14px;
+    width: 240px;
+}
+
+.exam-page-additional-controls-button{
+    margin: 6px;
+}

@@ -1,0 +1,16 @@
+#app-header{
+    display: flex;
+    width: 100%;
+    height: 240px;
+    background-color: #292929;
+    justify-content: center;
+    align-items: center;
+}
+
+#app-title-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}

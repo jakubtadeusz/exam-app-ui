@@ -1,0 +1,10 @@
+
+.message-page-content{
+    width: 80vw;;
+}
+
+.add-message-button{
+    position: fixed !important;
+    top: 104px;
+    right: .7em;
+}

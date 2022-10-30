@@ -1,0 +1,49 @@
+
+#exam-page{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+#content-selector{
+    position: fixed;
+    top: 60px;
+    height: 100%;
+    width: 280px;
+    border-right: 1px solid #DED7CE;
+    padding-top: .6em;;
+}
+
+#exam-page-content{
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+#exam-page-content #content{
+    position: fixed;
+    top: 60px;
+    left: 300px;
+    display: flex;
+    flex-direction: column;
+    width: 81vw;
+    height: auto;
+    overflow:auto;
+    padding: 1em;
+}
+
+.menu-item:hover{
+    background-color: #F5F5F5;
+    cursor: pointer;
+}
+
+.menu-item{
+    display: flex;
+    gap: .6em;
+    font-size: 24px;
+    color: rgba(0, 0, 0, .8);
+    padding: .2em;
+    align-items: center;
+    padding-left: .6em;;
+}
