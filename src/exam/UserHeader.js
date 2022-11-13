@@ -29,7 +29,7 @@ function UserHeader(props) {
             </div>
             {props.logged ??
             <div id="user-header-title">
-                Zalogowany jako: {auth.user}
+                Zalogowany jako: {auth.user.username}
                 <Button onClick={logout} color="secondary">Wyloguj</Button>
             </div>
             }  

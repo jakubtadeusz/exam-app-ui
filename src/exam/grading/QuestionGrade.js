@@ -40,10 +40,10 @@ function QuestionGrade (props){
                     </div>
                     <Divider/>
                     <div className="question-grade-answers">
-                        {question.type != 3 ? 
+                        {question.type !== 3 ? 
                         question.answers.map((answer) => (
                             <div className="question-grade-answer" key={answer.answerId}>
-                                {question.type == 2 ?
+                                {question.type === 2 ?
                                     <Checkbox checked={isAnswerChecked(question, answer)} color="secondary"/>:
                                     <Radio checked={isAnswerChecked(question, answer)} color="secondary"/>
                                 }

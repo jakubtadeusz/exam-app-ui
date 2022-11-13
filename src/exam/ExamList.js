@@ -6,16 +6,17 @@ import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
 import ExamService from "../services/ExamService";
+import {useAuth} from "../auth/Auth";
 
 function ExamList(props) {
 
     let examService = new ExamService();
     let [exams, setExams] = useState([]);
-
+    let auth = useAuth();
 
 
     useEffect(() => {
-        examService.getExams().then((data) => {
+        examService.getExams(auth.user.access_token).then((data) => {
             setExams(data);
         });
     }, []);
@@ -58,8 +59,8 @@ function ExamList(props) {
                         <TableCell component="th" scope="row">
                             {row.name}
                         </TableCell>
-                        <TableCell align="right">{row.created.toDateString()}</TableCell>
-                        <TableCell align="center">{row.examTime.toLocaleString()}</TableCell>
+                        <TableCell align="right">{new Date(row.created).toDateString()}</TableCell>
+                        <TableCell align="center">{new Date(row.examTime).toLocaleString()}</TableCell>
                         <TableCell align="center">{row.examDuration}min</TableCell>
                         <TableCell align="center">{parseStatus(row.status)}</TableCell>
                         </TableRow>
@@ -73,8 +74,20 @@ function ExamList(props) {
             className="add-exam-button"
             onClick={
                 () => {
-                    props.setSelectedExam(null);
-                    props.changeToEdit();
+                    let exam = {
+                        name: "Nowy egzamin",
+                        created: new Date().toISOString(),
+                        examTime: new Date().toISOString(),
+                        duration: 60,
+                        examStatus: 0,
+                    }
+                    console.log("user", auth.user);
+
+                    examService.addExam(auth.user.access_token, exam).then((data) => {
+                        setExams([...exams, data]);
+                        props.setSelectedExam(data);
+                        props.changeToEdit();
+                    });
                 }
             }>
                 <AddIcon />

@@ -21,8 +21,15 @@ function LoginPage() {
   
     function handleSubmit(event) {
       event.preventDefault();
-  
-      auth.signin(email, () => {
+      let user = {
+        grant_type: "password",
+        username: email,
+        password: password,
+        client_id: email,
+        client_secret: password,
+        scope: "examAPI"
+      };
+      auth.signin(user, () => {
         // Send them back to the page they tried to visit when they were
         // redirected to the login page. Use { replace: true } so we don't create
         // another entry in the history stack for the login page.  This means that

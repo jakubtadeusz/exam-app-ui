@@ -21,22 +21,49 @@ function QuestionEditList(props) {
 
     let addNewQuestion = () => {
         let question = {
-            id: -1,
+            order: questions.length + 1,
             examId: props.exam.id,
             question: "",
-            type: 1,
-            points: 1,
-            answers: []
+            type: 0,
+            points: 1
         }
-        setQuestions([...questions, question]);
+
+        questionService.addQuestion(question).then((data) => {
+            console.log(data);
+            setQuestions([...questions, data]);
+        });
+    }
+
+    let setQuestion = (question) => {
+        let newQuestions = questions.map((q) => {
+            if (q.id == question.id) {
+                return question;
+            }
+            return q;
+        });
+        setQuestions(newQuestions);
+    }
+
+    let removeQuestion = (question) => {
+        console.log(question);
+        questionService.deleteQuestion(question).then((data) => {
+            let newQuestions = questions.filter((q) => {
+                return q.id != question.id;
+            });
+            setQuestions(newQuestions);
+        });
+
+        
     }
 
     return (
         <div>
             <div className="question-edit-container">
-                {questions.map((question, key) => {
+                {
+                questions.map((question, key) => {
+                    if (question.answers == null) question.answers = [];
                     return (
-                        <QuestionEdit question={question} key={key} questionPos={key+1} />
+                        <QuestionEdit question={question} key={key} questionPos={key+1} setQuestion={q => setQuestion(q)} removeQuestion={removeQuestion}/>
                     );
                 })}
             </div>
@@ -49,7 +76,11 @@ function QuestionEditList(props) {
                     <AddIcon className="exam-page-additional-controls-icon" />
                     <div className="exam-page-additional-controls-text">Dodaj nowe pytanie</div>
                 </Button>
-                <Button variant="contained" fullWidth={true} color="secondary" className="exam-page-additional-controls-button" onClick={() => props.setSelected(3)}>
+                <Button variant="contained" fullWidth={true} color="secondary" className="exam-page-additional-controls-button" onClick={() =>{
+                    questionService.saveQuestions(questions).then((data) => {
+                        props.setSelected(3);
+                    });
+                    } }>
                     <SaveIcon className="exam-page-additional-controls-icon" />
                     <div className="exam-page-additional-controls-text">Zapisz zmiany</div>
                 </Button>

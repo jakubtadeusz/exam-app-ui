@@ -22,16 +22,17 @@ function ExamPage() {
         switch(selected){
             case 0: return <ExamList setSelectedExam={setSelectedExam} changeToEdit={() => setSelected(3)}/>;
             case 1: return <MessagePage/>;
-            case 2: return <div><ExaminedPage/></div>;
-            case 3: return <div><EditExam exam = {selectedExam} setSelected={setSelected}/></div>
-            case 4: return <div><QuestionEditList exam = {selectedExam} setSelected={setSelected}/></div>
-            case 5: return <div><GradingPage exam={selectedExam} setSelected={setSelected}/></div>
+            case 2: return <ExaminedPage/>;
+            case 3: return <EditExam exam = {selectedExam} setSelected={setSelected}/>
+            case 4: return <QuestionEditList exam = {selectedExam} setSelected={setSelected}/>
+            case 5: return <GradingPage exam={selectedExam} setSelected={setSelected}/>
+            default: return <div></div>
         }
     }
 
     return (
         <div id="exam-page">
-            <UserHeader name={selected == 4 ? selectedExam.name : ""} resetPage={() => setSelected(0)}/>
+            <UserHeader name={selected === 4 ? selectedExam.name : ""} resetPage={() => setSelected(0)}/>
             <div id="exam-page-content">   
             <div id="content-selector">
                 <div id="exam-list-button" className="menu-item" onClick={() => setSelected(0)}><ListAltIcon/>Egzaminy</div>

@@ -1,3 +1,7 @@
+import axios from "axios";
+
+    let questionApi = "http://localhost:5188/api/Questions";
+    let answerApi = "http://localhost:5188/api/Answers";
 
     let _questions = [
         {
@@ -70,18 +74,62 @@
 class QuestionService {
 
     getQuestions = (examId) => {
-        examId = 1;
         return new Promise((resolve, reject) => {
-            console.log("questions list", _questions);
-            resolve(_questions.filter((question) => question.examId === examId));
+            axios.get(questionApi + "?examId=" + examId)
+                .then(response => {
+                    resolve(response.data);
+                })
+                .catch(error => {
+                    reject(error);
+                });
         });
     }
 
     addQuestion = (question) => {
         return new Promise((resolve, reject) => {
-            this._questions.push(question);
-            console.log(_questions);
-            resolve(question);
+            axios.post(questionApi, question)
+                .then(response => {
+                    resolve(response.data);
+                })
+                .catch(error => {
+                    reject(error);
+                });
+        });
+    }
+
+    saveQuestions = (questions) => {
+        return new Promise((resolve, reject) => {
+            axios.put(questionApi, questions)
+                .then(response => {
+                    resolve(response.data);
+                })
+                .catch(error => {
+                    reject(error);
+                });
+        });
+    }
+
+    addQuestionAnswer = (answer) => {
+        return new Promise((resolve, reject) => {
+            axios.post(answerApi, answer)
+                .then(response => {
+                    resolve(response.data);
+                })
+                .catch(error => {
+                    reject(error);
+                });
+        });
+    }
+
+    deleteQuestion = (question) => {
+        return new Promise((resolve, reject) => {
+            axios.delete(questionApi + "/" + question.id)
+                .then(response => {
+                    resolve(response.data);
+                })
+                .catch(error => {
+                    reject(error);
+                });
         });
     }
 }

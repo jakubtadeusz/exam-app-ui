@@ -8,14 +8,17 @@ import { Button, Divider, TextField } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import DoneIcon from "@mui/icons-material/Done";
+import ExamService from "../services/ExamService";
 
 function TestPage() {
 
     let questionService = new QuestionService();
+    let examService = new ExamService();
 
     let [timeLeft, setTimeLeft] = useState(3600);
     let [questionNumber, setQuestionNumber] = useState(0);
     let [questionAmount, setQuestionAmount] = useState(0);
+    let [examStatus, setExamStatus] = useState("W trakcie");
 
     let [questions, setQuestions] = useState(null);
     const params = useParams();
@@ -31,10 +34,15 @@ function TestPage() {
     useEffect(() => {
         let userId = params.userId;
         let examId = params.examId;
-        questionService.getQuestions(examId).then((data) => {
-            setQuestions(data);
-            setQuestionNumber(1);
-            setQuestionAmount(data.length);
+        examService.getExam(examId).then((exam) => {
+            setExamStatus(exam.status);
+            if (exam.status === "W trakcie") {
+                questionService.getQuestions(examId).then((data) => {
+                    setQuestions(data);
+                    setQuestionNumber(1);
+                    setQuestionAmount(data.length);
+                });
+            }
         });
     }, []);
 
@@ -60,6 +68,7 @@ function TestPage() {
 
     return <div className="test-page">
         <UserHeader name={""} logged={false} resetPage={() =>{}}/>
+        {examStatus === "W trakcie"?
         <div id="exam-page-content">   
             <div id="content-selector">
                 <div id="content-selector-text">
@@ -115,10 +124,10 @@ function TestPage() {
                     </div>
                     <Divider/>
                     <div className="content-question-answers">
-                        {questions ? questions[questionNumber-1].type != 3 ? questions[questionNumber-1].answers.map((answer) => {
+                        {questions ? questions[questionNumber-1].type !== 3 ? questions[questionNumber-1].answers.map((answer) => {
                             return (
                                 <div className="content-question-answer">
-                                    {questions[questionNumber-1].type == 1 ?
+                                    {questions[questionNumber-1].type === 1 ?
                                     <input type="radio" name="answer" value={answer.answerId}/> : 
                                     <input type="checkbox" name="answer" value={answer.answerId}/>}
                                     {answer.answer}
@@ -128,6 +137,15 @@ function TestPage() {
                 </div>
             </div>
         </div>
+        : 
+        <div>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <h1>Egzamin niedostępny</h1>
+        </div>
+        }
     </div>
 }
 

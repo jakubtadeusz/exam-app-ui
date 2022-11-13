@@ -15,11 +15,12 @@ import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Checkbox, FormControlLabel } from '@mui/material';
 import './EditExam.css';
+import { useAuth } from "../auth/Auth";
 
 
 function EditExam (props){
     let examService = new ExamService();
-
+    let auth = useAuth();
     let [exam, setExam] = useState({
         id: -1,
         name: "Nazwa egzaminu",
@@ -35,7 +36,7 @@ function EditExam (props){
     let [startMessage, setStartMessage] = useState("");
 
     useEffect(() => {
-        if (props.exam.id != null){
+        if (props.exam.id !== null){
             examService.getExam(props.exam.id).then((exam) => {
                 setExam(exam);
             });
@@ -82,6 +83,12 @@ function EditExam (props){
         setStartMessage(event.target.value);
     }
 
+    let beginExam = () => {
+        examService.beginExam(exam.id).then((exam) => {
+            props.setSelected(0);
+        });
+    }
+
     return (
         <div className="exam-edit-container">
             <Button variant="contained" onClick={() => props.setSelected(0)}><ArrowBackIcon/>Wróć do listy egzaminów</Button>
@@ -106,7 +113,7 @@ function EditExam (props){
                                 value={exam.examTime}
                                 format="dd/MM/yyyy h:MM"
                                 onChange={(newValue) => {
-                                setExamTime(newValue);
+                                setExamTime(newValue.toDate().toISOString());
                                 }}
                             />
                         </LocalizationProvider>
@@ -120,7 +127,7 @@ function EditExam (props){
                 <div className="exam-edits">
                     <h3>Pytania: </h3>
                     {30}
-                    <Button variant="contained" onClick={() => props.setSelected(4)}>Edytuj pytania<EditIcon/></Button>
+                    <Button variant="contained" disabled={exam.status !== "Nierozpoczęty"} onClick={() => props.setSelected(4)}>Edytuj pytania<EditIcon/></Button>
                     <FormControlLabel control={<Checkbox/>} label="Oceniaj automatycznie" />
                     <Button variant="contained" disabled={exam.status !== "Do oceny"} onClick={() => props.setSelected(5)}>Oceń egzamin <StarHalfIcon/></Button>
                 </div>
@@ -166,14 +173,24 @@ function EditExam (props){
                     </Select>
                     <Button variant="contained">Roześlij wiadomości <SendIcon/></Button>
                 </div>
-                <Button variant="contained" disabled={exam.status !== "Nierozpoczęty"}>Rozpocznij egzamin <FlagIcon/></Button>
+                <Button variant="contained" disabled={exam.status !== "Nierozpoczęty"} onClick={()=> beginExam()}>Rozpocznij egzamin <FlagIcon/></Button>
                 <Divider/>
                 <div className="exam-edits">
-                    <Button variant="contained" color="secondary">Usuń egzamin <DeleteIcon/></Button>
+                    <Button variant="contained" color="secondary" onClick={()=>{
+                        if(window.confirm("Czy na pewno chcesz usunąć egzamin?")){
+                            examService.removeExam(auth.user.access_token, exam.id).then(() => {
+                                props.setSelected(0);
+                            });
+                        }
+                    }}>Usuń egzamin <DeleteIcon/></Button>
                     <p>Uwaga, operacja jest nieodwracalna</p>
                 </div>
                 <div className="exam-edit-save">
-                    <Button variant="contained">Zapisz<SaveIcon/></Button>
+                    <Button variant="contained" onClick={()=>{
+                        examService.editExam(auth.user.access_token, exam).then(() => {
+                            props.setSelected(0);
+                        });
+                    }}>Zapisz<SaveIcon/></Button>
                 </div>
         </div>
     );

@@ -1,50 +1,62 @@
+import axios from "axios";
 
 class ExaminedService {
-    
-    constructor() {
-        this.examined = [
-            {
-                id: 1,
-                name: "Jan",
-                surname: "Kowalski",
-                email: "jkow@mail.com",
-                group: "ITE2019"
-            },
-            {
-                id: 2,
-                name: "Anna",
-                surname: "Nowak",
-                email: "anowak@mail.com",
-                group: "ITE2019"
-            },
-            {
-                id: 3,
-                name: "Krzysztof",
-                surname: "Strzelecki",
-                email: "kstrzel@mail.com",
-                group: "ITE2019"
-            },
-        ];
-    }
-    
-    addExamined = (examined) => {
+    examinedApi = "http://localhost:5188/api/Examined";
+
+    addExamined = (token, examined) => {
         return new Promise((resolve, reject) => {
-            this.examined.push(examined);
-            resolve(examined);
-        });
-    }
-    
-    getExamined() {
-        return new Promise((resolve, reject) => {
-            resolve(this.examined);
+            axios({
+                method: 'post',
+                url: this.examinedApi,
+                data: examined,
+                headers: {
+                    'Authorization': 'Bearer ' + token, 
+                    'Content-Type': 'application/json'
+                },
+            }).then((response) => {
+                resolve(response.data);
+            });
         });
     }
 
-    removeExamined = (examinedId) => {
+    updateExamined = (token, examined) => {
         return new Promise((resolve, reject) => {
-            const index = this.examined.findIndex((e) => e.id === examinedId);
-            this.examined.splice(index, 1);
-            resolve();
+            axios({
+                method: 'put',
+                url: this.examinedApi + "/" + examined.id,
+                data: examined,
+                headers: {
+                    'Authorization': 'Bearer ' + token, 
+                    'Content-Type': 'application/json'
+                },
+            }).then((response) => {
+                resolve(response.data);
+            });
+        });
+    }
+    
+    getExamined(token) {
+        return new Promise((resolve, reject) => {
+            axios.get(this.examinedApi, {
+                headers: {
+                    "Authorization": "Bearer " + token,
+                },
+            }).then((response) => {
+                resolve(response.data);
+            });
+        });
+    }
+
+    removeExamined = (token, examinedId) => {
+        return new Promise((resolve, reject) => {
+            axios.delete(this.examinedApi + "/" + examinedId, 
+            {
+                headers: {
+                    "Authorization": "Bearer " + token,
+                },
+            }).then((response) => {
+                resolve(response.data);
+            });
         });
     }
     

@@ -1,74 +1,87 @@
-
+import axios from 'axios';
 
 class ExamService{
-    _exams = [
-        {
-            id: 1,
-            name: "Analiza matematyczna 2  - wykład",
-            created: new Date("2021-04-01"),
-            examTime: new Date("2021-06-15T15:00:00"),
-            examDuration: 90,
-            status: "Nierozpoczęty",
-        },
-        {
-            id: 2,
-            name: "Analiza matematyczna 2  - wykład",
-            created: new Date("2021-04-01"),
-            examTime: new Date("2021-06-15T15:00:00"),
-            examDuration: 90,
-            status: "W trakcie",
-        },
-        {
-            id: 4,
-            name: "Analiza matematyczna 2  - wykład",
-            created: new Date("2021-04-01"),
-            examTime: new Date("2021-06-15T15:00:00"),
-            examDuration: 90,
-            status: "Zakończony",
-        },
-        {
-            id: 3,
-            name: "Analiza matematyczna 2  - wykład",
-            created: new Date("2021-04-01"),
-            examTime: new Date("2021-06-15T15:00:00"),
-            examDuration: 90,
-            status: "Do oceny",
-        },
-    ];
+    
 
-    getExams = () =>{
+    examApi = 'http://localhost:5188/api/Exams';
+
+    getExams = (token) =>{
         return new Promise((resolve, reject) => {
-            resolve(this._exams);
+            axios.get(this.examApi, 
+                {
+                    headers: {
+                        "Authorization": "Bearer " + token,
+                    },
+                }).then((response) => {
+                console.log(response.data);
+                resolve(response.data);
+            });
         });
     } 
     
     getExam = (id) => {
         return new Promise((resolve, reject) => {
-            resolve(this._exams.find((exam) => exam.id === id));
+            axios.get(this.examApi + "/" + id).then((response) => {
+                resolve(response.data);
+            });
         });
     }
 
-    addExam = (exam) => {
+    addExam = (token, exam) => {
         return new Promise((resolve, reject) => {
-            this._exams.push(exam);
-            exam.id = this._exams.length;
-            resolve(exam);
+            axios({
+                method: 'post',
+                url: this.examApi,
+                data: exam,
+                headers: {
+                    'Authorization': 'Bearer ' + token, 
+                    'Content-Type': 'application/json'
+                },
+            }).then((response) => {
+                resolve(response.data);
+            });
         });
     }
 
-    editExam = (exam) => {
+    editExam = (token, exam) => {
         return new Promise((resolve, reject) => {
-            let index = this._exams.findIndex((e) => e.id === exam.id);
-            this._exams[index] = exam;
-            resolve(exam);
+            axios({
+                method: 'put',
+                url: this.examApi + "/" + exam.id,
+                data: exam,
+                headers: {
+                    'Authorization': 'Bearer ' + token, 
+                    'Content-Type': 'application/json'
+                },
+            }).then((response) => {
+                resolve(response.data);
+            });
         });
     }
 
-    removeExam = (id) => {
+    removeExam = (token, id) => {
         return new Promise((resolve, reject) => {
-            let index = this._exams.findIndex((e) => e.id === id);
-            this._exams.splice(index, 1);
-            resolve();
+            axios.delete(this.examApi + "/" + id,
+            {
+                headers: {
+                    "Authorization": "Bearer " + token,
+                },
+            }).then((response) => {
+                resolve(response.data);
+            });
+        });
+    }
+
+    beginExam = (token, id) => {
+        return new Promise((resolve, reject) => {
+            axios.post(this.examApi + "/start/" + id + "/",
+            {
+                headers: {
+                    "Authorization": "Bearer " + token,
+                },
+            }).then((response) => {
+                resolve(response.data);
+            });
         });
     }
 }

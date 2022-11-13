@@ -1,77 +1,81 @@
 import React from "react";
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Fab, TextField, MenuItem } from "@mui/material";
+import {DataGrid} from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import SaveIcon from '@mui/icons-material/Save';
 import ExaminedService from "../../services/ExaminedService";
 import { useState, useEffect } from "react";
 import "./ExaminedPage.css";
+import { useAuth } from "../../auth/Auth";
 
 function ExaminedPage () {
     let examinedService = new ExaminedService();
     let [examined, setExamined] = useState([]);
+    let auth = useAuth();
 
     useEffect(() => {
-        examinedService.getExamined().then((data) => {
+        examinedService.getExamined(auth.user.access_token).then((data) => {
             setExamined(data);
+            console.log("data", data);
         });
     }, []);
 
     let removeExamined = (id) => {
-        examinedService.removeExamined(id).then(() => {
+        examinedService.removeExamined(auth.user.access_token, id).then(() => {
             setExamined(examined.filter((m) => m.id !== id));
         });
     }
 
     let addExamined = (e) => {
         e.preventDefault();
-        examinedService.addExamined({name: "Imię", surname: "Nazwisko", email: "email@mail.com", group: "Grupa"}).then((data) => {
+        examinedService.addExamined(auth.user.access_token, {
+            name: "Imię", 
+            surname: "Nazwisko", 
+            email: "email@mail.com", 
+            group: "Grupa"
+        }).then((data) => {
             setExamined([...examined, data]);
         });
     }
 
+    let saveExamined = (examined) => {
+        examinedService.updateExamined(auth.user.access_token, examined).then((data) => {
+        });
+    }
+
+    let columns = [
+        { field: "name", headerName: "Imię", editable: true, flex: 1 },
+        { field: "surname", headerName: "Nazwisko", editable: true, flex: 1 },
+        { field: "email", headerName: "Adres email", editable: true, flex: 1 },
+        { field: "group", headerName: "Grupa", editable: true, flex: 1 },
+        { field: "save", headerName: "", editable: false, sortable: false, flex: 1,
+        renderCell: (params) => {
+            return (
+                <SaveIcon color="secondary" onClick={() => saveExamined(params.row)}/>
+                );
+            }
+        },
+        { field: "delete", headerName: "", editable: false, sortable: false, flex: 1,
+            renderCell: (params) => {
+                return (
+                    <DeleteIcon color="secondary" onClick={() => removeExamined(params.id)}/>
+                );
+             }
+        }
+
+    ];
+
     return (
         <div className="examined-page-content">
-             <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 1200 }} aria-label="simple table">
-                    <TableHead>
-                    <TableRow>
-                        <TableCell align="left">Imię</TableCell>
-                        <TableCell align="left">Nazwisko</TableCell>
-                        <TableCell align="left">Adres email</TableCell>
-                        <TableCell align="left">Grupa</TableCell>
-                        <TableCell align="right"> </TableCell>
-                    </TableRow>
-                    </TableHead>
-                    <TableBody suppressContentEditableWarning={true}>
-                    {examined.map((row) => (
-                        <TableRow
-                        key={row.id}
-                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                        editable={true}
-                        >
-                        <TableCell suppressContentEditableWarning={true} contentEditable={true} component="th" scope="row">
-                            {row.name}
-                        </TableCell>
-                        <TableCell suppressContentEditableWarning={true} contentEditable={true} component="th" scope="row">
-                            {row.surname}
-                        </TableCell>
-                        <TableCell suppressContentEditableWarning={true} contentEditable={true} component="th" scope="row">
-                            {row.email}
-                        </TableCell>
-                        <TableCell suppressContentEditableWarning={true} contentEditable={true} component="th" scope="row">
-                            {row.group}
-                        </TableCell>
-                        <TableCell align="right"><DeleteIcon color="secondary" onClick={() => removeExamined(row.id)}/></TableCell>
-                        </TableRow>
-                    ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-            <Fab 
-            color="secondary" 
-            aria-label="add" 
-            className="add-examined-button"
-            onClick={addExamined}>
+            <DataGrid
+                rows={examined}
+                columns={columns}
+                useResizeContainer = {true}
+                experimentalFeatures={{ newEditingApi: true }}
+                editMode="row"
+            />
+            <Fab color="secondary" aria-label="add" className="add-examined-button" onClick={addExamined}>
                 <AddIcon />
             </Fab>
         </div>
