@@ -7,11 +7,13 @@ import SaveIcon from '@mui/icons-material/Save';
 import QuestionService from "../../services/QuestionService";
 import QuestionEdit from "./QuestionEdit";
 import './QuestionEditList.css';
+import { useAuth } from "../../auth/Auth";
 
 
 function QuestionEditList(props) {
     let questionService = new QuestionService();
     let [questions, setQuestions] = useState([]);
+    let auth = useAuth();
 
     useEffect(() => {
         questionService.getQuestions(props.exam.id).then((data) => {
@@ -28,7 +30,7 @@ function QuestionEditList(props) {
             points: 1
         }
 
-        questionService.addQuestion(question).then((data) => {
+        questionService.addQuestion(auth.user.access_token, question).then((data) => {
             console.log(data);
             setQuestions([...questions, data]);
         });
@@ -46,14 +48,12 @@ function QuestionEditList(props) {
 
     let removeQuestion = (question) => {
         console.log(question);
-        questionService.deleteQuestion(question).then((data) => {
+        questionService.deleteQuestion(auth.user.access_token, question).then((data) => {
             let newQuestions = questions.filter((q) => {
                 return q.id != question.id;
             });
             setQuestions(newQuestions);
-        });
-
-        
+        });        
     }
 
     return (
@@ -77,7 +77,7 @@ function QuestionEditList(props) {
                     <div className="exam-page-additional-controls-text">Dodaj nowe pytanie</div>
                 </Button>
                 <Button variant="contained" fullWidth={true} color="secondary" className="exam-page-additional-controls-button" onClick={() =>{
-                    questionService.saveQuestions(questions).then((data) => {
+                    questionService.saveQuestions(auth.user.access_token, questions).then((data) => {
                         props.setSelected(3);
                     });
                     } }>

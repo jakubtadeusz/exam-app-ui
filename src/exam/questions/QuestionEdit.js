@@ -4,10 +4,12 @@ import { MenuItem, TextField, Checkbox, Radio } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import './QuestionEdit.css';
 import QuestionService from "../../services/QuestionService";
+import { useAuth } from "../../auth/Auth";
 
 function QuestionEdit(props) {
     let questionService = new QuestionService();
     let [questionType, setQuestionType] = useState(props.question.type);
+    let auth = useAuth();
 
     let handleQuestionTypeChange = (e) => {
         props.question.type = e.target.value;
@@ -44,7 +46,7 @@ function QuestionEdit(props) {
     let handleNewAnswer = (e) => {
         var q = {...props.question};
 
-        questionService.addQuestionAnswer({
+        questionService.addQuestionAnswer(auth.user.access_token, {
             questionId: q.id,
             answer: e.target.value,
             isCorrect: false,

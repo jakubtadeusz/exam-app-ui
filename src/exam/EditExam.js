@@ -84,7 +84,7 @@ function EditExam (props){
     }
 
     let beginExam = () => {
-        examService.beginExam(exam.id).then((exam) => {
+        examService.beginExam(auth.user.access_token, exam.id).then((exam) => {
             props.setSelected(0);
         });
     }
@@ -129,7 +129,7 @@ function EditExam (props){
                     {30}
                     <Button variant="contained" disabled={exam.status !== "Nierozpoczęty"} onClick={() => props.setSelected(4)}>Edytuj pytania<EditIcon/></Button>
                     <FormControlLabel control={<Checkbox/>} label="Oceniaj automatycznie" />
-                    <Button variant="contained" disabled={exam.status !== "Do oceny"} onClick={() => props.setSelected(5)}>Oceń egzamin <StarHalfIcon/></Button>
+                    <Button variant="contained" disabled={true ? false : exam.status !== "Do oceny"} onClick={() => props.setSelected(5)}>Oceń egzamin <StarHalfIcon/></Button>
                 </div>
                 <div className="exam-edits">
                     <FormControlLabel control={<Checkbox/>} label="Losuj pytania" />

@@ -8,29 +8,32 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import HomeIcon from '@mui/icons-material/Home';
 import "./GradingPage.css";
+import { useAuth } from "../../auth/Auth";
+import ResultService from "../../services/ResultService";
 
 function GradingPage (props) {
-    let answerService = new AnswerService();
-    console.log(answerService);
     let questionService = new QuestionService();
+    let resultService = new ResultService();
+    let auth = useAuth();
 
     let [questions, setQuestions] = useState([]);
     let [answers, setAnswers] = useState([]);
     let [selectedAnswer, setSelectedAnswer] = useState(null);
 
     useEffect(() => {
-        console.log(props.exam);
         questionService.getQuestions(props.exam.id).then((data) => {
             setQuestions(data);
             console.log("questions", data);
         });
-        answerService.getAnswers(props.exam.id).then((data) => {
+        resultService.getResults(auth.user.access_token, props.exam.id).then((data) => {
+            console.log("answers", data);
             setAnswers(data);
             setSelectedAnswer(data[0]);
         });
     }, [props.exam.id]);
 
     let prevAnswer = () => {
+        saveGrades();
         let index = answers.indexOf(selectedAnswer);
         if (index > 0) {
             setSelectedAnswer(answers[index-1]);
@@ -38,6 +41,7 @@ function GradingPage (props) {
     }
 
     let nextAnswer = () => {
+        saveGrades();
         let index = answers.indexOf(selectedAnswer);
         if (index < answers.length-1) {
             setSelectedAnswer(answers[index+1]);
@@ -46,6 +50,20 @@ function GradingPage (props) {
 
     let getAnswerIndex = () => {
         return answers.indexOf(selectedAnswer)+1;
+    }
+
+    let saveGrades = () => {
+        let grades = questions.map((question) =>  
+        {
+            return{
+                id: question.resultId,
+                score: parseInt(question.result),
+            }
+        });
+
+        resultService.saveGrades(auth.user.access_token, grades).then((data) => {
+            console.log("grades saved", data);
+        });
     }
 
     return (

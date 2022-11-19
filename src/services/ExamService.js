@@ -74,10 +74,12 @@ class ExamService{
 
     beginExam = (token, id) => {
         return new Promise((resolve, reject) => {
-            axios.post(this.examApi + "/start/" + id + "/",
-            {
+            axios({
+                method: 'post',
+                url: this.examApi + "/start/" + id,
                 headers: {
-                    "Authorization": "Bearer " + token,
+                    'Authorization': 'Bearer ' + token, 
+                    'Content-Type': 'application/json'
                 },
             }).then((response) => {
                 resolve(response.data);

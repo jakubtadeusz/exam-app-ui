@@ -9,16 +9,22 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import DoneIcon from "@mui/icons-material/Done";
 import ExamService from "../services/ExamService";
+import { useAuth } from "../auth/Auth";
+import ResultService from "../services/ResultService";
 
 function TestPage() {
 
     let questionService = new QuestionService();
     let examService = new ExamService();
+    let resultService = new ResultService();
+    let auth = useAuth();
 
     let [timeLeft, setTimeLeft] = useState(3600);
     let [questionNumber, setQuestionNumber] = useState(0);
     let [questionAmount, setQuestionAmount] = useState(0);
     let [examStatus, setExamStatus] = useState("W trakcie");
+    let [message, setMessage] = useState("Egzamin niedostępny");
+    let [textAnswer, setTextAnswer] = useState("");
 
     let [questions, setQuestions] = useState(null);
     const params = useParams();
@@ -38,9 +44,13 @@ function TestPage() {
             setExamStatus(exam.status);
             if (exam.status === "W trakcie") {
                 questionService.getQuestions(examId).then((data) => {
-                    setQuestions(data);
-                    setQuestionNumber(1);
-                    setQuestionAmount(data.length);
+                    let questions = [...data];
+                    console.log("questions", questions);
+                    setQuestions(questions);
+                    setQuestionAmount(questions.length);
+                    if (questions.length > 0){
+                        setQuestionNumber(1);
+                    }
                 });
             }
         });
@@ -54,21 +64,60 @@ function TestPage() {
         + minutes + ":" + seconds;
     }
 
+    let saveResult = (question) => {
+        let results = question.answers.map(v => {
+            return {
+                answer: v.correct ? v.id : null,
+                questionId: question.id,
+                examinedId: params.userId
+            }
+        });
+        if (question.type == 2){
+         results.push({
+                answer: textAnswer,
+                questionId: question.id,
+                examinedId: params.userId
+            });
+        }
+
+        results = results.filter(v => v.answer != null);
+
+        resultService.addResults(results).then((data) => {
+            console.log("data", data);
+        });
+    }
+
     let nextQuestion = () => {
+        saveResult(questions[questionNumber-1]);
         if(questionNumber < questionAmount){
             setQuestionNumber(questionNumber + 1);
         }
     }
 
     let previousQuestion = () => {
+        saveResult(questions[questionNumber-1]);
         if(questionNumber > 1){
             setQuestionNumber(questionNumber - 1);
         }
     }
 
+    let endExam = () => {
+        saveResult(questions[questionNumber-1]);
+        setMessage("Odpowiedzi wysłane, dziękujemy za wypełnienie egzaminu");
+        setExamStatus("Wypełniony");
+    }
+
+    let handleAnswerChange = (event) => {
+        setTextAnswer(event.target.value);
+    }
+
+    let setAnswer = (e, answer) => {
+        answer.correct = e.target.checked;
+    }
+
     return <div className="test-page">
         <UserHeader name={""} logged={false} resetPage={() =>{}}/>
-        {examStatus === "W trakcie"?
+        {examStatus != null && examStatus === "W trakcie"?
         <div id="exam-page-content">   
             <div id="content-selector">
                 <div id="content-selector-text">
@@ -107,13 +156,14 @@ function TestPage() {
                         width: "260px",
                         margin: "10px",
                     }}><ArrowForwardIcon/>Następny</Button>
-                <Button variant="contained" color="secondary" sx={
+                <Button variant="contained" color="secondary" onClick={endExam} sx={
                     {
                         width: "260px",
                         margin: "10px",
                     }}><DoneIcon/>Zakończ egzamin</Button>
             </div>
             <div id="content">
+            {questionNumber > 0 ?
                 <div className="content-question">
                     <Divider/>
                     <div className="content-question-text">
@@ -124,17 +174,18 @@ function TestPage() {
                     </div>
                     <Divider/>
                     <div className="content-question-answers">
-                        {questions ? questions[questionNumber-1].type !== 3 ? questions[questionNumber-1].answers.map((answer) => {
+                        {questions ? questions[questionNumber-1].type !== 2 ? questions[questionNumber-1].answers.map((answer) => {
                             return (
                                 <div className="content-question-answer">
-                                    {questions[questionNumber-1].type === 1 ?
-                                    <input type="radio" name="answer" value={answer.answerId}/> : 
-                                    <input type="checkbox" name="answer" value={answer.answerId}/>}
+                                    {questions[questionNumber-1].type === 0 ?
+                                    <input type="radio" name="answer" value={answer.answerId} onChange={(e)=>setAnswer(e, answer)}/> : 
+                                    <input type="checkbox" name="answer" value={answer.answerId} onChange={(e)=>setAnswer(e, answer)}/>}
                                     {answer.answer}
                                 </div>);
-                        }) : <TextField label="Wprowadź odpowiedź"/> : null} 
+                        }) : <TextField label="Wprowadź odpowiedź" multiline={true} rows={3}  size="big" fullWidth={true} onChange={handleAnswerChange}/> : null} 
                     </div>
                 </div>
+                : null}
             </div>
         </div>
         : 
@@ -143,7 +194,7 @@ function TestPage() {
             <br/>
             <br/>
             <br/>
-            <h1>Egzamin niedostępny</h1>
+            <h1>{message}</h1>
         </div>
         }
     </div>

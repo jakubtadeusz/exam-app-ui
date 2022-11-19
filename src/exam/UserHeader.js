@@ -10,8 +10,6 @@ function UserHeader(props) {
     let auth = useAuth();
     let navigate = useNavigate();
 
-    console.log(auth);
-
     let logout = (e) => {
         e.preventDefault();
         console.log("logout");
