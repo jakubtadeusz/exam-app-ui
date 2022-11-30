@@ -49,13 +49,33 @@ function QuestionEdit(props) {
         questionService.addQuestionAnswer(auth.user.access_token, {
             questionId: q.id,
             answer: e.target.value,
-            isCorrect: false,
+            correct: false,
             order: q.answers.length + 1
         }).then((data) => {
             q.answers.push(data);
             props.setQuestion(q);
         });
     };
+
+    let handleAnswerCorrectChange = (e, answer) => {
+        var id = answer.id;
+        console.log(answer);
+        var q = {...props.question};
+        var type = q.type;
+
+        for (let answer of q.answers){
+            if (answer.id == id){
+                answer.correct = type === 0 ? true : !answer.correct;
+                if (type === 1) break;
+            }else {
+                if (type === 0){
+                    answer.correct = false;
+                }
+            }
+        }
+
+        props.setQuestion(q);
+    }
 
     return (
         <div className="question-edit">
@@ -82,10 +102,10 @@ function QuestionEdit(props) {
                     return (
                         <div className="question-edit-answer" key={answer.id}>
                             {props.question.type === 1 ?
-                                <Checkbox checked={answer.correct} color="secondary"/>:
-                                <Radio checked={answer.correct} color="secondary"/>
+                                <Checkbox checked={answer.correct} color="secondary" onClick={(e)=>handleAnswerCorrectChange(e, answer)}/>:
+                                <Radio checked={answer.correct} color="secondary" onClick={(e)=>handleAnswerCorrectChange(e, answer)}/>
                                 }
-                            <TextField id="outlined-basic" size="small" variant="outlined" value={answer.answer} label="Odpowiedź" onChange={(e)=>handleAnswerChange(e, answer.id)}/>
+                            <TextField id="outlined-basic" size="small" variant="outlined" value={answer.answer} label="Odpowiedź" onChange={(e)=>handleAnswerChange(e, answer.id)} autoFocus/>
                         </div>
                     );
                 })}

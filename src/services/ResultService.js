@@ -48,6 +48,21 @@ class ResultService {
             });
         });
     }
+
+    finishGrading = (token, examId) => {
+        return new Promise((resolve, reject) => {
+            axios({
+                method: 'post',
+                url: resultApi + "/grade/finish/" + examId,
+                headers: {
+                    'Authorization': 'Bearer ' + token, 
+                    'Content-Type': 'application/json'
+                },
+            }).then((response) => {
+                resolve(response.data);
+            });
+        });
+    }
 }
 
 export default ResultService;

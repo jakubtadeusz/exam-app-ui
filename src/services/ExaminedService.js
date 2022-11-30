@@ -59,7 +59,19 @@ class ExaminedService {
             });
         });
     }
-    
+
+    getExaminedGroups = (token) => {
+        return new Promise((resolve, reject) => {
+            axios.get(this.examinedApi + "/groups", {
+                headers: {
+                    "Authorization": "Bearer " + token,
+                }
+            }).then((response) => {
+                resolve(response.data);
+            }
+            );
+        });
+    }
 }
 
 export default ExaminedService;

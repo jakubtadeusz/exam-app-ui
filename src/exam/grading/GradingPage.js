@@ -66,13 +66,20 @@ function GradingPage (props) {
         });
     }
 
+    let finishGrading = () => {
+        saveGrades();
+        resultService.finishGrading(auth.user.access_token, props.exam.id).then((data) => {
+            props.setSelected(3);
+        });
+    }
+
     return (
         <div className="grading-page">
             <div className="grading-page-answers">
                     <QuestionGrade answer={selectedAnswer} questions={questions}/>
             </div>
             <div className = "grading-page-additional-controls">
-                <Button variant="contained" fullWidth={true} className="grading-page-additional-controls-button" onClick={() => props.setSelected(3)}>
+                <Button variant="contained" fullWidth={true} className="grading-page-additional-controls-button" onClick={finishGrading}>
                     <HomeIcon className="exam-page-additional-controls-icon" />
                     <div className="exam-page-additional-controls-text">Wycofaj</div>
                 </Button>

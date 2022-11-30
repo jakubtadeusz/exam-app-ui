@@ -12,11 +12,21 @@ function QuestionGrade (props){
         let questionsData = [...props.questions];
         for (let question of questionsData){;
             let answer = props.answer.answers.find(answer => answer.questionId === question.id);
-            console.log("answer", answer);
             question.userAnswers = answer.answers;
             question.result = answer.result;
             question.resultId = answer.resultId;
-            console.log(question, answer);
+            if (question.type !== 2){
+                for (let answer of question.answers){
+                    let checked = isAnswerChecked(question, answer);
+                    if (answer.correct && checked){
+                        question.result = question.points;
+                    }
+                    if (answer.correct && !checked || !answer.correct && checked){
+                        question.result = 0;
+                        break;
+                    }
+                }
+            }
         }
         setQuestions(questionsData);
     }, [props.questions, props.answer]);

@@ -16,10 +16,15 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Checkbox, FormControlLabel } from '@mui/material';
 import './EditExam.css';
 import { useAuth } from "../auth/Auth";
+import MessageService from "../services/MessageService";
+import ExaminedService from "../services/ExaminedService";
 
 
 function EditExam (props){
     let examService = new ExamService();
+    let messageService = new MessageService();
+    let examinedService = new ExaminedService();
+
     let auth = useAuth();
     let [exam, setExam] = useState({
         id: -1,
@@ -35,10 +40,27 @@ function EditExam (props){
     let [examinedGroup, setExaminedGroup] = useState("");
     let [startMessage, setStartMessage] = useState("");
 
+    let [gradeMessages, setGradeMessages] = useState([]);
+    let [startMessages, setStartMessages] = useState([]);
+
+    let [groups, setGroups] = useState([]);
+
     useEffect(() => {
         if (props.exam.id !== null){
             examService.getExam(props.exam.id).then((exam) => {
                 setExam(exam);
+            });
+            messageService.getMessages(auth.user.access_token).then((data) => {
+                console.log(data);
+                setGradeMessages(data.filter((m) => m.type === "Ocena"));
+                setStartMessages(data.filter((m) => m.type === "Zaproszenie"));
+                setGradeMessage(data.filter((m) => m.type === "Ocena")[0].id);
+                setStartMessage(data.filter((m) => m.type === "Zaproszenie")[0].id);
+            });
+            examinedService.getExaminedGroups(auth.user.access_token).then((data) => {
+                console.log(data);
+                setGroups(data);
+                setExaminedGroup(0);
             });
         }
     }, [props.examId]);
@@ -85,7 +107,16 @@ function EditExam (props){
 
     let beginExam = () => {
         examService.beginExam(auth.user.access_token, exam.id).then((exam) => {
-            props.setSelected(0);
+        });
+    }
+
+    let sendGrades = () => {
+        messageService.sendGrades(auth.user.access_token, gradeMessage, exam.id, groups[examinedGroup]).then((exam) => {
+        });
+    }
+
+    let sendInvitations = () => {
+        messageService.sendInvitations(auth.user.access_token, startMessage, exam.id, groups[examinedGroup]).then((exam) => {
         });
     }
 
@@ -142,9 +173,9 @@ function EditExam (props){
                         label="Wiadomość z oceną"
                         onChange={handleGradeMessageChange}
                     >
-                        <MenuItem value={1}>Wiadomość ocena AM1</MenuItem>
+                        {gradeMessages.map((m) => <MenuItem value={m.id}>{m.name}</MenuItem>)}
                     </Select>
-                    <Button variant="contained" disabled={exam.status !== "Zakończony"}>Roześlij oceny <SendIcon/></Button>
+                    <Button variant="contained" disabled={exam.status !== "Zakończony"} onClick={sendGrades}>Roześlij oceny <SendIcon/></Button>
                 </div>
                 <Divider/>
                 <div className="exam-edits">
@@ -157,7 +188,7 @@ function EditExam (props){
                         label="Egzaminowani"
                         onChange={handleExaminedGroupChange}
                     >
-                        <MenuItem value={1}>ITE2019</MenuItem>
+                        {groups.map((g, k) => <MenuItem value={k}>{g}</MenuItem>)}
                     </Select>
                 </div>
                 <Divider/>
@@ -169,9 +200,9 @@ function EditExam (props){
                         label="Wiadomość informacyjna"
                         onChange={handleStartMessageChange}
                     >
-                        <MenuItem value={1}>Wiadomość zaproszenie AM1</MenuItem>
+                        {startMessages.map((m) => <MenuItem value={m.id}>{m.name}</MenuItem>)}
                     </Select>
-                    <Button variant="contained">Roześlij wiadomości <SendIcon/></Button>
+                    <Button variant="contained" onClick={sendInvitations}>Roześlij wiadomości <SendIcon/></Button>
                 </div>
                 <Button variant="contained" disabled={exam.status !== "Nierozpoczęty"} onClick={()=> beginExam()}>Rozpocznij egzamin <FlagIcon/></Button>
                 <Divider/>
