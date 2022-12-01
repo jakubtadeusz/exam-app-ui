@@ -38,14 +38,12 @@ function TestPage() {
     }, [timeLeft]);
 
     useEffect(() => {
-        let userId = params.userId;
         let examId = params.examId;
         examService.getExam(examId).then((exam) => {
             setExamStatus(exam.status);
             if (exam.status === "W trakcie") {
                 questionService.getQuestions(examId).then((data) => {
                     let questions = [...data];
-                    console.log("questions", questions);
                     setQuestions(questions);
                     setQuestionAmount(questions.length);
                     if (questions.length > 0){
@@ -82,8 +80,10 @@ function TestPage() {
 
         results = results.filter(v => v.answer != null);
 
+        console.log("results", results);
+
         resultService.addResults(results).then((data) => {
-            console.log("data", data);
+            return;
         });
     }
 
@@ -113,6 +113,14 @@ function TestPage() {
 
     let setAnswer = (e, answer) => {
         answer.correct = e.target.checked;
+        console.log(answer.correct);
+    }
+
+    let setRadioAnswer = (e, answer, answers) => {
+        for (var a of answers){
+            console.log(a);
+            a.correct = a.id === answer.id
+        }
     }
 
     return <div className="test-page">
@@ -178,8 +186,8 @@ function TestPage() {
                             return (
                                 <div className="content-question-answer">
                                     {questions[questionNumber-1].type === 0 ?
-                                    <input type="radio" name="answer" value={answer.answerId} onChange={(e)=>setAnswer(e, answer)}/> : 
-                                    <input type="checkbox" name="answer" value={answer.answerId} onChange={(e)=>setAnswer(e, answer)}/>}
+                                    <input type="radio" name="answer" value={answer.answerId} checked={answer.correct} onClick={(e)=>setRadioAnswer(e, answer, questions[questionNumber-1].answers)}/> : 
+                                    <input type="checkbox" name="answer" value={answer.answerId} checked={answer.correct} onClick={(e)=>setAnswer(e, answer)}/>}
                                     {answer.answer}
                                 </div>);
                         }) : <TextField label="Wprowadź odpowiedź" multiline={true} rows={3}  size="big" fullWidth={true} onChange={handleAnswerChange}/> : null} 
