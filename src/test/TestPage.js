@@ -118,7 +118,6 @@ function TestPage() {
 
     let setRadioAnswer = (e, answer, answers) => {
         for (var a of answers){
-            console.log(a);
             a.correct = a.id === answer.id
         }
     }
